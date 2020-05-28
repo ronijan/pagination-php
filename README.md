@@ -6,7 +6,7 @@
    USERNAME: 'username';
    PASSWORD: '';
    DATABASE_NAME: 'db';
-> Table: To whatever your Table name is. currently is `ontacts`
+> Change Table Name: change to whatever your Table name is. currently is `ontacts`
 
 * composer install
  $ `composer install -o`
