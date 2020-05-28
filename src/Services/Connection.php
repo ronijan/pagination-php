@@ -2,32 +2,44 @@
 
 namespace Ronijan\Pagination\Services;
 
+use mysqli;
+
 class Connection
 {
-  protected $host;
-  protected $username;
-  protected $password;
-  protected $dbName;
+    protected $host;
+    protected $username;
+    protected $password;
+    protected $dbName;
 
-  public function __construct()
-  {
-    $this->host = 'localhost';
-    $this->username = 'root';
-    $this->password = '';
-    $this->dbName = 'db';
-  }
+    /**
+     * Connection constructor.
+     */
+    public function __construct()
+    {
+        $this->host = 'localhost';
+        $this->username = 'root';
+        $this->password = '';
+        $this->dbName = 'db';
+    }
 
-  public function sql()
-  {
-    $con = mysqli_connect($this->host, $this->username, $this->password, $this->dbName);
+    /**
+     * @return false|mysqli
+     */
+    public function sql()
+    {
+        $connection = mysqli_connect($this->host, $this->username, $this->password, $this->dbName);
 
-    if(mysqli_connect_errno($con)) die("Failed to connect MySQL: " .mysqli_connect_error());
+        if (mysqli_connect_errno())
+            die("Failed to connect MySQL: " . mysqli_connect_error());
 
-    return $con;
-  }
+        return $connection;
+    }
 
-  public function table()
-  {
-    return 'contacts';
-  }
+    /**
+     * @return string
+     */
+    public function table()
+    {
+        return 'contacts';
+    }
 }
