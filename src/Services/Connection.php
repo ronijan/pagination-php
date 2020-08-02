@@ -13,8 +13,8 @@ class Connection
   {
     $this->host = 'localhost';
     $this->username = 'root';
-    $this->password = '';
-    $this->dbName = 'db';
+    $this->password = '!@aA12345';
+    $this->dbName = 'test';
   }
 
   public function sql()
