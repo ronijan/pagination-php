@@ -1,103 +1,129 @@
-<?php namespace Ronijan\Pagination;
+<?php
 
+namespace Ronijan\Pagination;
+
+use mysqli_result;
 use Ronijan\Pagination\Services\Connection;
 
 
 class Pagination
 {
-	private function database()
-	{
-		return new Connection;
-	}
+    /**
+     * @return Connection
+     */
+    private function database()
+    {
+        return new Connection;
+    }
 
-	public function totalRows($limit)
-	{
-		$database = $this->database();
-		$con = $database->sql();
-		$table = $database->table();
-		$sql = "SELECT COUNT(*) 'totalRows' FROM $table";
-		$res = mysqli_fetch_object(mysqli_query($con, $sql));
-		$totalRows = $res->totalRows;
+    /**
+     * @param $limit
+     * @return false|float
+     */
+    public function totalRows($limit)
+    {
+        $database = $this->database();
+        $con = $database->sql();
+        $table = $database->table();
+        $sql = "SELECT COUNT(*) 'totalRows' FROM $table";
+        $res = mysqli_fetch_object(mysqli_query($con, $sql));
+        $totalRows = $res->totalRows;
 
-		return ceil($totalRows / $limit);
-	}
+        return ceil($totalRows / $limit);
+    }
 
-	public function getPage()
-	{
-		$page = '';
+    /**
+     * @return int|mixed
+     */
+    public function getPage()
+    {
+        if (isset($_GET['page']) && $_GET['page'] != "") {
+            $page = $_GET['page'];
+        } else {
+            $page = 1;
+        }
 
-		if(isset($_GET['page']) && $_GET['page'] != "") {
-			$page = $_GET['page'];
-		} else {
-			$page = 1;
-		}
+        return $page;
+    }
 
-		return $page;
-	}
+    /**
+     * @param $offset
+     * @param $limit
+     * @return bool|mysqli_result
+     */
+    public function rows($offset, $limit)
+    {
+        $database = $this->database();
+        $con = $database->sql();
+        $table = $database->table();
+        $query = "select * from $table limit $offset, $limit";
 
-	public function rows($offset, $limit)
-	{
-		$database = $this->database();
-		$con = $database->sql();
-		$table = $database->table();
-		$query  = "select * from $table limit $offset, $limit";
+        return mysqli_query($con, $query);
+    }
 
-		return mysqli_query($con, $query);
-	}
+    /**
+     * @param $limit
+     * @return float|int
+     */
+    public function getOffset($limit)
+    {
+        if (isset($_GET['page']) && $_GET['page'] != "") {
+            $page = $_GET['page'];
+            $offset = $limit * ($page - 1);
+        } else {
+            $offset = 0;
+        }
 
-	public function getOffset($limit)
-	{
-		$offset = '';
+        return $offset;
+    }
 
-		if(isset($_GET['page']) && $_GET['page'] != "") {
-			$page = $_GET['page'];
-			$offset = $limit * ($page-1);
-		} else {
-			$offset = 0;
-		}
+    /**
+     * @param $totalPages
+     * @param $adjacent
+     * @param $page
+     * @return float|int
+     */
+    public function firstPage($totalPages, $adjacent, $page)
+    {
+        if ($totalPages <= (1 + ($adjacent * 2))) {
+            $firstPage = 1;
+        } else {
+            if (($page - $adjacent) > 1) {
+                if (($page + $adjacent) < $totalPages) {
+                    $firstPage = ($page - $adjacent);
+                } else {
+                    $firstPage = ($totalPages - (1 + ($adjacent * 2)));
+                }
+            } else {
+                $firstPage = 1;
+            }
+        }
 
-		return $offset;
-	}
+        return $firstPage;
+    }
 
-	public function firstPage($totalPages, $adjacents, $page )
-	{
-		$firstPage = '';
+    /**
+     * @param $totalPages
+     * @param $adjacent
+     * @param $page
+     * @return float|int
+     */
+    public function lastPage($totalPages, $adjacent, $page)
+    {
+        if ($totalPages <= (1 + ($adjacent * 2))) {
+            $lastPage = $totalPages;
+        } else {
+            if (($page - $adjacent) > 1) {
+                if (($page + $adjacent) < $totalPages) {
+                    $lastPage = ($page + $adjacent);
+                } else {
+                    $lastPage = $totalPages;
+                }
+            } else {
+                $lastPage = (1 + ($adjacent * 2));
+            }
+        }
 
-		if($totalPages <= (1+($adjacents * 2))) {
-			$firstPage = 1;
-		} else {
-			if(($page - $adjacents) > 1) {
-				if(($page + $adjacents) < $totalPages) {
-					$firstPage = ($page - $adjacents);
-				} else {
-					$firstPage = ($totalPages - (1+($adjacents*2)));
-				}
-			} else {
-				$firstPage = 1;
-			}
-		}
-
-		return $firstPage;
-	}
-
-	public function lastPage($totalPages, $adjacents, $page)
-	{
-		$lastPage = '';
-
-		if($totalPages <= (1+($adjacents * 2))) {
-			$lastPage   = $totalPages;
-		} else {
-			if(($page - $adjacents) > 1) {
-				if(($page + $adjacents) < $totalPages) {
-					$lastPage   = ($page + $adjacents);
-				} else {
-					$lastPage   = $totalPages;
-				}
-			} else {
-				$lastPage   = (1+($adjacents * 2));
-			}
-		}
-
-		return $lastPage;
-	}
+        return $lastPage;
+    }
 }
